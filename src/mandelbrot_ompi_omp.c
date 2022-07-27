@@ -205,7 +205,6 @@ int main(int argc, char *argv[]){
             if(DO_OUTPUT) MPI_Send(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
               i, tag_image, MPI_COMM_WORLD);
             offset += chunk_size;
-            
         }
 
         /* Calcula fatia da master */

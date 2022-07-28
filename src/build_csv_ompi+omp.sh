@@ -11,7 +11,7 @@ THREAD_ITERATIONS=5
 NODES=$INITIAL_NODES
 NUM_THREADS=$INITIAL_NUM_THREADS
 
-NAMES=('mandelbrot_ompi_pth')
+NAMES=('mandelbrot_ompi_omp')
 FILES=('triple_spiral.csv')
 
 make

@@ -1,0 +1,102 @@
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 4096' (15 runs):
+
+         23.600,57 msec task-clock                #    0,996 CPUs utilized            ( +-  0,22% )
+             2.210      context-switches          #    0,094 K/sec                    ( +-  0,44% )
+                 8      cpu-migrations            #    0,000 K/sec                    ( +- 10,56% )
+           163.896      page-faults               #    0,007 M/sec                    ( +-  0,00% )
+    87.793.624.522      cycles                    #    3,720 GHz                      ( +-  0,02% )
+        23.957.834      stalled-cycles-frontend   #    0,03% frontend cycles idle     ( +-  1,69% )
+    76.048.408.525      stalled-cycles-backend    #   86,62% backend cycles idle      ( +-  0,03% )
+    88.936.781.647      instructions              #    1,01  insn per cycle         
+                                                  #    0,86  stalled cycles per insn  ( +-  0,00% )
+     7.591.344.783      branches                  #  321,659 M/sec                    ( +-  0,01% )
+        17.564.953      branch-misses             #    0,23% of all branches          ( +-  0,06% )
+
+           23,6944 +- 0,0534 seconds time elapsed  ( +-  0,23% )
+
+
+ Performance counter stats for './mandelbrot_pth -0.188 -0.012 0.554 0.754 4096 8' (15 runs):
+
+         25.343,83 msec task-clock                #    6,053 CPUs utilized            ( +-  0,01% )
+             2.639      context-switches          #    0,104 K/sec                    ( +-  0,60% )
+                11      cpu-migrations            #    0,000 K/sec                    ( +-  5,44% )
+           163.922      page-faults               #    0,006 M/sec                    ( +-  0,00% )
+    90.781.747.619      cycles                    #    3,582 GHz                      ( +-  0,01% )
+        55.436.048      stalled-cycles-frontend   #    0,06% frontend cycles idle     ( +- 10,96% )
+    25.962.567.800      stalled-cycles-backend    #   28,60% backend cycles idle      ( +-  0,54% )
+    89.394.944.355      instructions              #    0,98  insn per cycle         
+                                                  #    0,29  stalled cycles per insn  ( +-  0,00% )
+     7.643.057.316      branches                  #  301,575 M/sec                    ( +-  0,00% )
+        17.765.059      branch-misses             #    0,23% of all branches          ( +-  0,08% )
+
+           4,18717 +- 0,00320 seconds time elapsed  ( +-  0,08% )
+
+
+ Performance counter stats for './mandelbrot_omp -0.188 -0.012 0.554 0.754 4096 8' (15 runs):
+
+         25.269,07 msec task-clock                #    6,469 CPUs utilized            ( +-  0,01% )
+             2.677      context-switches          #    0,106 K/sec                    ( +-  0,55% )
+                 3      cpu-migrations            #    0,000 K/sec                    ( +- 10,77% )
+           163.929      page-faults               #    0,006 M/sec                    ( +-  0,00% )
+    90.560.993.221      cycles                    #    3,584 GHz                      ( +-  0,01% )
+        50.704.005      stalled-cycles-frontend   #    0,06% frontend cycles idle     ( +-  2,61% )
+    22.601.596.972      stalled-cycles-backend    #   24,96% backend cycles idle      ( +-  0,02% )
+    85.951.480.146      instructions              #    0,95  insn per cycle         
+                                                  #    0,26  stalled cycles per insn  ( +-  0,00% )
+    10.709.537.724      branches                  #  423,820 M/sec                    ( +-  0,00% )
+        18.250.060      branch-misses             #    0,17% of all branches          ( +-  0,05% )
+
+           3,90595 +- 0,00911 seconds time elapsed  ( +-  0,23% )
+
+
+ Performance counter stats for 'mpirun --allow-run-as-root --oversubscribe -n 8 mandelbrot_ompi -0.188 -0.012 0.554 0.754 4096' (15 runs):
+
+         37.449,23 msec task-clock                #    7,017 CPUs utilized            ( +-  0,05% )
+            31.258      context-switches          #    0,835 K/sec                    ( +-  0,60% )
+               825      cpu-migrations            #    0,022 K/sec                    ( +-  8,17% )
+         1.338.489      page-faults               #    0,036 M/sec                    ( +-  0,00% )
+   132.996.436.548      cycles                    #    3,551 GHz                      ( +-  0,04% )
+     3.222.355.739      stalled-cycles-frontend   #    2,42% frontend cycles idle     ( +-  0,63% )
+    27.533.347.346      stalled-cycles-backend    #   20,70% backend cycles idle      ( +-  0,13% )
+   146.635.416.861      instructions              #    1,10  insn per cycle         
+                                                  #    0,19  stalled cycles per insn  ( +-  0,04% )
+    18.666.301.261      branches                  #  498,443 M/sec                    ( +-  0,07% )
+        78.944.311      branch-misses             #    0,42% of all branches          ( +-  0,69% )
+
+           5,33655 +- 0,00551 seconds time elapsed  ( +-  0,10% )
+
+
+ Performance counter stats for 'mpirun --allow-run-as-root --oversubscribe -n 2 mandelbrot_ompi_pth -0.188 -0.012 0.554 0.754 4096 4' (15 runs):
+
+         26.617,09 msec task-clock                #    5,606 CPUs utilized            ( +-  0,04% )
+             7.280      context-switches          #    0,273 K/sec                    ( +-  0,81% )
+                50      cpu-migrations            #    0,002 K/sec                    ( +-  5,31% )
+           346.694      page-faults               #    0,013 M/sec                    ( +-  0,00% )
+    95.034.330.458      cycles                    #    3,570 GHz                      ( +-  0,03% )
+       103.948.865      stalled-cycles-frontend   #    0,11% frontend cycles idle     ( +-  1,57% )
+    27.513.407.148      stalled-cycles-backend    #   28,95% backend cycles idle      ( +-  0,47% )
+    99.132.998.706      instructions              #    1,04  insn per cycle         
+                                                  #    0,28  stalled cycles per insn  ( +-  0,01% )
+     9.462.734.273      branches                  #  355,513 M/sec                    ( +-  0,03% )
+        20.844.815      branch-misses             #    0,22% of all branches          ( +-  0,11% )
+
+           4,74770 +- 0,00998 seconds time elapsed  ( +-  0,21% )
+
+
+ Performance counter stats for 'mpirun --allow-run-as-root --oversubscribe -n 2 mandelbrot_ompi_omp -0.188 -0.012 0.554 0.754 4096 4' (15 runs):
+
+         28.252,80 msec task-clock                #    4,240 CPUs utilized            ( +-  0,08% )
+            20.175      context-switches          #    0,714 K/sec                    ( +-  0,36% )
+                57      cpu-migrations            #    0,002 K/sec                    ( +-  3,83% )
+           174.658      page-faults               #    0,006 M/sec                    ( +-  0,00% )
+   100.666.129.362      cycles                    #    3,563 GHz                      ( +-  0,07% )
+       141.091.406      stalled-cycles-frontend   #    0,14% frontend cycles idle     ( +- 30,60% )
+    40.180.594.982      stalled-cycles-backend    #   39,91% backend cycles idle      ( +-  0,54% )
+    88.752.815.141      instructions              #    0,88  insn per cycle         
+                                                  #    0,45  stalled cycles per insn  ( +-  0,03% )
+    11.295.490.131      branches                  #  399,801 M/sec                    ( +-  0,05% )
+        23.300.251      branch-misses             #    0,21% of all branches          ( +-  0,15% )
+
+            6,6639 +- 0,0279 seconds time elapsed  ( +-  0,42% )
+

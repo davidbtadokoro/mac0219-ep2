@@ -3,6 +3,7 @@
 #include <math.h>
 #include <mpi.h>
 #include <omp.h>
+#include <string.h>
 
 /* Opções de execução */
 #define DEBUG 0
@@ -214,8 +215,9 @@ int main(int argc, char *argv[]){
 
         for (int i = 1; i < num_tasks; i++) {
             MPI_Recv(&offset, 1, MPI_INT, MPI_ANY_SOURCE, tag_offset, MPI_COMM_WORLD, &status);
+            int source = status.MPI_SOURCE;
             if(DO_OUTPUT) MPI_Recv(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
-              MPI_ANY_SOURCE, tag_image, MPI_COMM_WORLD, &status);
+              source, tag_image, MPI_COMM_WORLD, &status);
         }
 
         if(DO_OUTPUT) {

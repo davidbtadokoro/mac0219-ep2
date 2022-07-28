@@ -17,13 +17,13 @@ mandelbrot_omp, mandelbrot_ompi, mandelbrot_ompi_pth.
 ## Execução
 Para executar o programa mandelbrot_seq basta executá-lo
 normalmente. As versões paralelizadas, seja via Pthreads ou OpenMP,
-independentemente de fazerem uso ou não OpenMPI devem contém um
+independentemente de fazerem uso ou não OpenMPI, devem contém um
 argumento adicional, referente ao número de threads desejados na
 paralelização. Assim, para executar, por exemplo, a região Triple
-Spiral Valley na versão com Pthreads, oito threads e e sem OpenMPI,
+Spiral Valley na versão com OpenMPI e oito threads via Pthreads,
 o comando deve ser
 ```
-$ ./mandelbrot_ompi_pth -0.188 -0.012 0.554 0.754 11500 8
+$ ./mandelbrot_ompi_pth -0.188 -0.012 0.554 0.754 4096 8
 ```
 Note o oito como último argumento.
 

@@ -12,7 +12,7 @@ Para compilar os código basta acessar o diretório e rodar
 $ make
 ```
 Irão ser compilados os programas mandelbrot_seq, mandelbrot_pth
-mandelbrot_omp, mandelbrot_ompi, mandelbrot_ompi_pth.
+mandelbrot_omp, mandelbrot_ompi, mandelbrot_ompi_pth, mandelbrot_ompi_omp.
 
 ## Execução
 Para executar o programa mandelbrot_seq basta executá-lo

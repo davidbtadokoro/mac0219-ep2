@@ -6,7 +6,7 @@
 
 /* Opções de execução */
 #define DEBUG 0
-#define DO_OUTPUT 0
+#define DO_OUTPUT 1
 
 /* Parâmentros de execução */
 #define MASTER 0
@@ -200,20 +200,20 @@ int main(int argc, char *argv[]){
         if(DO_OUTPUT) allocate_image_buffer();
 
         for (int i = 1; i < num_tasks; i++) {
-            printf("Process %d will receive offset: %d\n", i, offset);
+            if(DEBUG) printf("Process %d will receive offset: %d\n", i, offset);
             MPI_Send(&offset, 1, MPI_INT, i, tag_offset, MPI_COMM_WORLD);
             if(DO_OUTPUT) MPI_Send(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
               i, tag_image, MPI_COMM_WORLD);
-            offset += chunk_size;
+            offset += chunk_size; 
         }
 
         /* Calcula fatia da master */
         compute_mandelbrot(0, chunk_size+left_over);
 
         for (int i = 1; i < num_tasks; i++) {
-            MPI_Recv(&offset, 1, MPI_INT, i, tag_offset, MPI_COMM_WORLD, &status);
+            MPI_Recv(&offset, 1, MPI_INT, MPI_ANY_SOURCE, tag_offset, MPI_COMM_WORLD, &status);
             if(DO_OUTPUT) MPI_Recv(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
-              i, tag_image, MPI_COMM_WORLD, &status);
+              MPI_ANY_SOURCE, tag_image, MPI_COMM_WORLD, &status);
         }
 
         if(DO_OUTPUT) {

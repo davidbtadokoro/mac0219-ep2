@@ -6,7 +6,7 @@
 
 /* Opções de execução */
 #define DEBUG 0
-#define DO_OUTPUT 0
+#define DO_OUTPUT 1
 
 /* Parâmentros de execução */
 #define MASTER 0
@@ -230,10 +230,10 @@ int main(int argc, char *argv[]){
         if(DO_OUTPUT) allocate_image_buffer();
 
         for (int i = 1; i < num_tasks; i++) {
-            printf("Process %d will receive offset: %d\n", i, offset);
-            MPI_Send(&offset, 1, MPI_INT, i, tag_offset, MPI_COMM_WORLD);
+            if(DEBUG) printf("Process %d will receive offset: %d\n", i, offset);
+            MPI_Send(&offset, 1, MPI_INT, MPI_ANY_SOURCE, tag_offset, MPI_COMM_WORLD);
             if(DO_OUTPUT) MPI_Send(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
-              i, tag_image, MPI_COMM_WORLD);
+              MPI_ANY_SOURCE, tag_image, MPI_COMM_WORLD);
             offset += chunk_size;
         }
 

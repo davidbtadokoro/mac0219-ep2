@@ -13,7 +13,8 @@
 #define SIZE 4096
 
 /* Parâmentros do PThreads */
-#define N_THREADS 2
+//#define N_THREADS 2
+int num_threads;
 
 typedef struct {
     int start;
@@ -84,6 +85,7 @@ void init(int argc, char *argv[]){
         sscanf(argv[3], "%lf", &c_y_min);
         sscanf(argv[4], "%lf", &c_y_max);
         sscanf(argv[5], "%d", &image_size);
+        sscanf(argv[6], "%d", &num_threads);
 
         i_x_max           = image_size;
         i_y_max           = image_size;
@@ -181,17 +183,17 @@ void* compute_mandelbrot_aux(void* i_y_start_end_) {
 
 void compute_mandelbrot(int start, int end) {
      /* inicialização relacionada a threads */
-    pthread_t threads[N_THREADS];
-    Pair* limits = calloc(N_THREADS, sizeof(Pair));
+    pthread_t threads[num_threads];
+    Pair* limits = calloc(num_threads, sizeof(Pair));
     int i_y, rc, t;
 
     /* loop principal, dividindo os i_y entre as threads */
-    for (i_y = start, t=0; t < N_THREADS; t++) {
+    for (i_y = start, t=0; t < num_threads; t++) {
         limits[t].start = i_y;
 
-        if (t == (N_THREADS - 1)) limits[t].end = end;
+        if (t == (num_threads - 1)) limits[t].end = end;
         else {
-            i_y += (i_y_max / N_THREADS);
+            i_y += ((end - start) / num_threads);
             limits[t].end = i_y;
         }
 
@@ -204,7 +206,7 @@ void compute_mandelbrot(int start, int end) {
     };
 
     // junta threads
-    for (int i = 0; i < N_THREADS; i++)
+    for (int i = 0; i < num_threads; i++)
         pthread_join(threads[i], NULL);
 }
 
@@ -231,9 +233,9 @@ int main(int argc, char *argv[]){
 
         for (int i = 1; i < num_tasks; i++) {
             if(DEBUG) printf("Process %d will receive offset: %d\n", i, offset);
-            MPI_Send(&offset, 1, MPI_INT, MPI_ANY_SOURCE, tag_offset, MPI_COMM_WORLD);
+            MPI_Send(&offset, 1, MPI_INT, i, tag_offset, MPI_COMM_WORLD);
             if(DO_OUTPUT) MPI_Send(&image[offset*SIZE], chunk_size*SIZE, MPI_UNSIGNED_CHAR,
-              MPI_ANY_SOURCE, tag_image, MPI_COMM_WORLD);
+              i, tag_image, MPI_COMM_WORLD);
             offset += chunk_size;
         }
 

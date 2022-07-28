@@ -13,7 +13,8 @@
 #define SIZE 4096
 
 /* Parâmentros do OpenMP */
-#define N_THREADS 2
+//#define N_THREADS 2
+int num_threads;
 
 double c_x_min;
 double c_x_max;
@@ -79,6 +80,7 @@ void init(int argc, char *argv[]){
         sscanf(argv[3], "%lf", &c_y_min);
         sscanf(argv[4], "%lf", &c_y_max);
         sscanf(argv[5], "%d", &image_size);
+        sscanf(argv[6], "%d", &num_threads);
 
         i_x_max           = image_size;
         i_y_max           = image_size;
@@ -126,7 +128,7 @@ void write_to_file(){
 };
 
 void compute_mandelbrot(int i_y_start, int i_y_end) {
-    omp_set_num_threads(N_THREADS);
+    omp_set_num_threads(num_threads);
 
     double z_x;
     double z_y;

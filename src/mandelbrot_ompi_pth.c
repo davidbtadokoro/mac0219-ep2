@@ -3,6 +3,7 @@
 #include <math.h>
 #include <mpi.h>
 #include <string.h>
+#include <pthread.h>
 
 double c_x_min;
 double c_x_max;
@@ -50,16 +51,24 @@ int task_size;                // size of task
 int beg_index;                // beggining index of task
 int end_index;                // ending index of task
 
+/* PThreads structs and global variables */
+int num_threads;
+
+typedef struct {
+    int start;
+    int end;
+} Pair;
+
 /* ------------------------------ Initialization ------------------------------ */
 
 void init(int argc, char *argv[]){
-    if(argc < 6){
-        printf("usage: ./mandelbrot_seq c_x_min c_x_max c_y_min c_y_max image_size\n");
+    if(argc < 7){
+        printf("usage: ./mandelbrot_seq c_x_min c_x_max c_y_min c_y_max image_size num_threads\n");
         printf("examples with image_size = 11500:\n");
-        printf("    Full Picture:         ./mandelbrot_ompi -2.5 1.5 -2.0 2.0 11500\n");
-        printf("    Seahorse Valley:      ./mandelbrot_ompi -0.8 -0.7 0.05 0.15 11500\n");
-        printf("    Elephant Valley:      ./mandelbrot_ompi 0.175 0.375 -0.1 0.1 11500\n");
-        printf("    Triple Spiral Valley: ./mandelbrot_ompi -0.188 -0.012 0.554 0.754 11500\n");
+        printf("    Full Picture:         ./mandelbrot_ompi_pth -2.5 1.5 -2.0 2.0 11500 8\n");
+        printf("    Seahorse Valley:      ./mandelbrot_ompi_pth -0.8 -0.7 0.05 0.15 11500 8\n");
+        printf("    Elephant Valley:      ./mandelbrot_ompi_pth 0.175 0.375 -0.1 0.1 11500 8\n");
+        printf("    Triple Spiral Valley: ./mandelbrot_ompi_pth -0.188 -0.012 0.554 0.754 11500 8\n");
         exit(0);
     }
     else{
@@ -68,6 +77,7 @@ void init(int argc, char *argv[]){
         sscanf(argv[3], "%lf", &c_y_min);
         sscanf(argv[4], "%lf", &c_y_max);
         sscanf(argv[5], "%d", &image_size);
+        sscanf(argv[6], "%d", &num_threads);
 
         i_x_max           = image_size;
         i_y_max           = image_size;
@@ -123,24 +133,24 @@ void write_to_file(){
 
 /* ------------------------------ Computation ------------------------------ */
 
-void update_rgb_buffer(int iteration, int index){
+void update_rgb_buffer(int iteration, int x, int y){
     int color;
 
     if(iteration == iteration_max){
-        image_buffer[index][0] = colors[gradient_size][0];
-        image_buffer[index][1] = colors[gradient_size][1];
-        image_buffer[index][2] = colors[gradient_size][2];
+        image_buffer[(i_y_max * y) + x][0] = colors[gradient_size][0];
+        image_buffer[(i_y_max * y) + x][1] = colors[gradient_size][1];
+        image_buffer[(i_y_max * y) + x][2] = colors[gradient_size][2];
     }
     else{
         color = iteration % gradient_size;
 
-        image_buffer[index][0] = colors[color][0];
-        image_buffer[index][1] = colors[color][1];
-        image_buffer[index][2] = colors[color][2];
+        image_buffer[(i_y_max * y) + x][0] = colors[color][0];
+        image_buffer[(i_y_max * y) + x][1] = colors[color][1];
+        image_buffer[(i_y_max * y) + x][2] = colors[color][2];
     };
 };
 
-void compute_mandelbrot(int beg_index, int end_index){
+void compute_mandelbrot_old(int beg_index, int end_index){
     double z_x;
     double z_y;
     double z_x_squared;
@@ -186,9 +196,92 @@ void compute_mandelbrot(int beg_index, int end_index){
         };
 
         /* Commit pixel color */
-        update_rgb_buffer(iteration, k);
+        //update_rgb_buffer(iteration, k);
     };
 };
+
+void* compute_mandelbrot_aux(void* arg) {
+    double z_x;
+    double z_y;
+    double z_x_squared;
+    double z_y_squared;
+    double escape_radius_squared = 4;
+
+    int iteration;
+    int col;
+    int row;
+
+    double c_x;
+    double c_y;
+
+    Pair * t = (Pair *) arg;
+
+    for (int k = t->start; k < t->end; k++) {
+        /* Converting array indexes to matrix indexes */
+        col = k % i_y_max;
+        row = k / i_y_max;
+
+        /* Defining complex number coordinates */
+        c_x = c_x_min + col * pixel_width;
+        c_y = c_y_min + row * pixel_height;
+
+        if(fabs(c_y) < pixel_height / 2) {
+            c_y = 0.0;
+        };
+
+        /* Resetting z and z^2 */
+        z_x = 0.0;
+        z_y = 0.0;
+        z_x_squared = 0.0;
+        z_y_squared = 0.0;
+
+        /* Define pixel color */
+        for(iteration = 0;
+            iteration < iteration_max && \
+            ((z_x_squared + z_y_squared) < escape_radius_squared);
+            iteration++){
+            z_y         = 2 * z_x * z_y + c_y;
+            z_x         = z_x_squared - z_y_squared + c_x;
+
+            z_x_squared = z_x * z_x;
+            z_y_squared = z_y * z_y;
+        };
+
+        /* Commit pixel color */
+        update_rgb_buffer(iteration, col, row);
+    };
+
+    return NULL;
+};
+
+void compute_mandelbrot(int start, int end) {
+     /* initialization related to threads */
+    pthread_t threads[num_threads];
+    Pair* limits = calloc(num_threads, sizeof(Pair));
+    int index, rc, t;
+
+    /* sharing the indexes between the threads */
+    for (index = start, t=0; t < num_threads; t++) {
+        limits[t].start = index;
+
+        if (t == (num_threads - 1)) limits[t].end = end;
+        else {
+            index += ((end - start) / num_threads);
+            limits[t].end = index;
+        }
+
+        rc = pthread_create(&threads[t], NULL, compute_mandelbrot_aux, (void*)(&limits[t]));
+
+        if(rc) {
+            fprintf(stderr, "ERROR; return code from pthread_create() is %d\n", rc);
+            exit(-1);
+        };
+    };
+
+    // join threads
+    for (int i = 0; i < num_threads; i++)
+        pthread_join(threads[i], NULL);
+}
 
 /* ------------------------------ Computation ------------------------------ */
 
